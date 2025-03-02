@@ -6,5 +6,4 @@ requires-python = ">=3.11"
 dependencies = [
     "jsonschema>=4.23.0",
     "requests>=2.32.3",
-    "cmakepresets @ file:///home/thomas/work/cmakepresets"
 ]
