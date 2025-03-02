@@ -1,0 +1,113 @@
+name: cmake-builder
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: "runs-on for the workflow"
+        type: string
+        default: "ubuntu-latest"
+      toolchain:
+        description: "toolchain to use for building"
+        type: string
+        default: "gcc"
+      presets:
+        description: "JSON string with preset configurations"
+        type: string
+        default: |
+          {
+            "linux": {},
+            "osx": { "runs-on": "macos-latest" },
+            "arm64-linux": { "runs-on": "cs-linux-arm64" },
+            "arm64-linux-tsan": { "runs-on": "cs-linux-arm64", "toolchain": "clang" }
+          }
+        required: true
+
+    secrets: inherit
+
+jobs:
+  validate_presets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/workflows/cmake-builder/scripts/
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Validate presets JSON against schema
+        working-directory: .github/workflows/cmake-builder/scripts
+        run: uv run validate-presets.py --presets '${{ inputs.presets }}'
+
+  construct_matrix:
+    needs: validate_presets
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.constructor.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/workflows/cmake-builder
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Construct matrix
+        id: constructor
+        working-directory: .github/workflows/cmake-builder/scripts
+        run: |
+          uv run construct-matrix.py \
+            --default-runs-on '${{ inputs.runs-on }}' \
+            --default-toolchain '${{ inputs.toolchain }}' \
+            --presets '${{ inputs.presets }}' > "$GITHUB_OUTPUT"
+
+  main:
+    needs: construct_matrix
+    name: ${{ matrix.preset }} (${{ matrix.toolchain }}@${{ matrix.runs-on }})
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.construct_matrix.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install dependencies
+        uses: ./.github/workflows/cmake-builder/actions/install-dependencies
+        with:
+          auth-service-account: ${{ inputs.auth-service-account }}
+          preset: ${{ matrix.preset }}
+          runs-on: ${{ matrix.runs-on }}
+          toolchain: ${{ matrix.toolchain }}
+
+      - name: split CMake workflow into GitHub Action steps
+        id: workflow
+        run: |
+          python3 .cpp-actions/scripts/workflow2action.py --preset "${{ matrix.preset }}" --config "${{ matrix.config }}" --workdir ${{ inputs.workdir }} --steps 3 --loglevel debug
+
+      - run: ${{ steps.workflow.outputs.step0 }}
+        if: steps.workflow.outputs.step0
+        working-directory: ${{ inputs.workdir }}
+
+      - run: ${{ steps.workflow.outputs.step1 }}
+        if: steps.workflow.outputs.step1
+        working-directory: ${{ inputs.workdir }}
+
+      - run: ${{ steps.workflow.outputs.step2 }}
+        if: steps.workflow.outputs.step2
+        working-directory: ${{ inputs.workdir }}
+
+  all-good:
+    needs: main
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: "NOTE: this job passes only when all build jobs pass"
+        shell: python
+        run: |
+          import sys
+          if all(result == "success" for result in ${{ toJSON(needs.*.result) }}):
+            sys.exit(0)
+          else:
+            sys.exit(1)

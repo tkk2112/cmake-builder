@@ -1,0 +1,10 @@
+[project]
+name = "cmake-builder"
+version = "0.1.0"
+description = "python scripts for the cmake-builder action"
+requires-python = ">=3.11"
+dependencies = [
+    "jsonschema>=4.23.0",
+    "requests>=2.32.3",
+    "cmakepresets @ file:///home/thomas/work/cmakepresets"
+]
