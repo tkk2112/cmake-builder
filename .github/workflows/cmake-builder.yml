@@ -24,7 +24,7 @@ on:
         type: number
         default: 5
       cmake_project_root:
-        description: "CMakePresets.json directory (default: github.workspace)"
+        description: "CMakePresets.json directory (default: $GITHUB_WORKSPACE)"
         type: string
         default: "${{ github.workspace }}"
       presets:
@@ -42,7 +42,7 @@ on:
         required: false
 
 jobs:
-  validate_presets:
+  validate-presets:
     runs-on: ubuntu-latest
     steps:
       - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
@@ -52,7 +52,7 @@ jobs:
         run: uv run alias validate '${{ inputs.presets }}'
 
   construct-matrix:
-    needs: validate_presets
+    needs: validate-presets
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.matrix-constructor.outputs.matrix }}

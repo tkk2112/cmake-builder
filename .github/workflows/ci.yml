@@ -15,7 +15,7 @@ jobs:
       toolchain: gcc
       store_artifact: true
       artifact_path: tests/build
-      cmake_project_root: ${{ github.workspace }}/tests
+      cmake_project_root: $GITHUB_WORKSPACE/tests
       presets: |
         {
           "debug": {},
