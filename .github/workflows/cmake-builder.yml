@@ -48,7 +48,7 @@ jobs:
       - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
 
       - name: validate presets input against schema
-        working-directory: ./.github/cmake-builder/.github/cmake-builder/scripts
+        working-directory: ./.cmake-builder/.github/scripts
         run: uv run alias validate '${{ inputs.presets }}'
 
   construct-matrix:
@@ -60,7 +60,7 @@ jobs:
       - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
       - name: construct matrix
         id: matrix-constructor
-        working-directory: ./.github/cmake-builder/.github/cmake-builder/scripts
+        working-directory: ./.cmake-builder/.github/scripts
         run: |
           uv run alias construct \
             --default-runs-on '${{ inputs.runs-on }}' \
@@ -91,7 +91,7 @@ jobs:
 
       - name: generate steps
         id: do
-        working-directory: ./.github/cmake-builder/.github/cmake-builder/scripts
+        working-directory: ./.cmake-builder/.github/scripts
         run: |
           uv run alias generate \
             --cmake-project-root '${{ inputs.cmake_project_root }}' \

@@ -8,7 +8,7 @@ runs:
     - uses: actions/checkout@v4
       with:
         repository: 'tkk2112/cmake-builder'
-        path: '.github/cmake-builder'
+        path: './.cmake-builder'
         sparse-checkout: |
           .github/scripts
     - uses: astral-sh/setup-uv@v5
