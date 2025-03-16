@@ -1,0 +1,51 @@
+name: cmake-builder/setup-runners
+description: setup runners for cmake build
+
+inputs:
+  preset:
+    description: "preset name"
+    required: true
+  runs-on:
+    description: "runs-on name"
+    required: true
+  toolchain:
+    description: "toolchain name"
+    required: true
+  secret1:
+    description: "Generic secret slot 1"
+    required: false
+  secret2:
+    description: "Generic secret slot 2"
+    required: false
+  secret3:
+    description: "Generic secret slot 3"
+    required: false
+  secret4:
+    description: "Generic secret slot 4"
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: create select-setup-actions
+      run: |
+        export RUNS_ON="${{ inputs.runs-on }}"
+        export TOOLCHAIN="${{ inputs.toolchain }}"
+        export PRESET="${{ inputs.preset }}"
+
+        node ${{ github.action_path }}/generate-action.js
+      shell: bash
+
+    - name: run select-setup-actions
+      if: ${{ hashFiles('.select-setup-actions/action.yml') != '' }}
+      uses: ./.select-setup-actions
+      with:
+        secret1: ${{ inputs.secret1 }}
+        secret2: ${{ inputs.secret2 }}
+        secret3: ${{ inputs.secret3 }}
+        secret4: ${{ inputs.secret4 }}
+
+    - name: cleanup select-setup-actions
+      run: rm -rf ./.select-setup-actions
+      if: always()
+      shell: bash
