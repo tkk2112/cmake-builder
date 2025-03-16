@@ -96,7 +96,7 @@ jobs:
           set -x
           echo $(env)
           uv run alias generate \
-            --cmake-project-root '${{ inputs.cmake_project_root }}' \
+            --cmake-project-root $GITHUB_WORKSPACE/${{ inputs.cmake_project_root }}' \
             --default-store-artifact '${{ inputs.store_artifact }}' \
             --default-artifact-path '${{ inputs.artifact_path }}' \
             --default-artifact-retention-days '${{ inputs.artifact_retention_days }}' \
