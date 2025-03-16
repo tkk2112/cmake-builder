@@ -48,7 +48,7 @@ jobs:
       - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
 
       - name: validate presets input against schema
-        working-directory: .github/cmake-builder/scripts
+        working-directory: /.github/cmake-builder/.github/cmake-builder/scripts
         run: uv run alias validate '${{ inputs.presets }}'
 
   construct-matrix:
