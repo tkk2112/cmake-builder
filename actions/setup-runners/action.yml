@@ -29,112 +29,13 @@ runs:
   steps:
     - name: create select-setup-actions
       run: |
-        set -x
-        BASE_PATH="./.github/actions/cmake-builder/${{ inputs.runs-on }}"
+        # Pass inputs as environment variables to the JavaScript file
+        export RUNS_ON="${{ inputs.runs-on }}"
+        export TOOLCHAIN="${{ inputs.toolchain }}"
+        export PRESET="${{ inputs.preset }}"
 
-        BASE_ACTION_PATH="${BASE_PATH}/base"
-        TOOLCHAIN_ACTION_PATH="${BASE_PATH}/toolchains/${{ inputs.toolchain }}"
-        PRESET_ACTION_PATH="${BASE_PATH}/presets/${{ inputs.preset }}"
-
-        BASE_ACTION="false"
-        TOOLCHAIN_ACTION="false"
-        PRESET_ACTION="false"
-
-        for action in BASE TOOLCHAIN PRESET; do
-          action_path_var="${action}_ACTION_PATH"
-          action_path="${!action_path_var}"
-
-          for ext in .yml .yaml; do
-            if [ -f "${action_path}/action${ext}" ]; then
-              echo "Found ${action} action file with extension ${ext}"
-              eval "${action}_ACTION=true"
-              break
-            fi
-          done
-        done
-
-        # Exit if no actions were found
-        if [ "$BASE_ACTION" = "false" ] && [ "$TOOLCHAIN_ACTION" = "false" ] && [ "$PRESET_ACTION" = "false" ]; then
-          echo "No actions found, exiting gracefully"
-          exit 0
-        fi
-
-        mkdir -p ./.select-setup-actions
-
-        # Use Python to generate the action file - with proper string handling
-        python3 -c '
-import os
-
-# Paths from bash variables
-base_path = os.environ.get("BASE_ACTION_PATH")
-toolchain_path = os.environ.get("TOOLCHAIN_ACTION_PATH")
-preset_path = os.environ.get("PRESET_ACTION_PATH")
-
-# Action flags
-base_action = os.environ.get("BASE_ACTION")
-toolchain_action = os.environ.get("TOOLCHAIN_ACTION")
-preset_action = os.environ.get("PRESET_ACTION")
-
-# Create the action file content
-content = """name: Dynamic Setup Action
-description: Dynamically generated action
-
-# Input definitions for secrets
-inputs:
-  secret1:
-    description: "Generic secret slot 1"
-    required: false
-  secret2:
-    description: "Generic secret slot 2"
-    required: false
-  secret3:
-    description: "Generic secret slot 3"
-    required: false
-  secret4:
-    description: "Generic secret slot 4"
-    required: false
-
-runs:
-  using: composite
-  steps:"""
-
-# Add action steps based on flags
-if base_action == "true":
-    content += """
-    - uses: {}
-      with:
-        secret1: ${{{{ inputs.secret1 }}}}
-        secret2: ${{{{ inputs.secret2 }}}}
-        secret3: ${{{{ inputs.secret3 }}}}
-        secret4: ${{{{ inputs.secret4 }}}}""".format(base_path)
-
-if toolchain_action == "true":
-    content += """
-    - uses: {}
-      with:
-        secret1: ${{{{ inputs.secret1 }}}}
-        secret2: ${{{{ inputs.secret2 }}}}
-        secret3: ${{{{ inputs.secret3 }}}}
-        secret4: ${{{{ inputs.secret4 }}}}""".format(toolchain_path)
-
-if preset_action == "true":
-    content += """
-    - uses: {}
-      with:
-        secret1: ${{{{ inputs.secret1 }}}}
-        secret2: ${{{{ inputs.secret2 }}}}
-        secret3: ${{{{ inputs.secret3 }}}}
-        secret4: ${{{{ inputs.secret4 }}}}""".format(preset_path)
-
-# Write the content to file
-with open("./.select-setup-actions/action.yml", "w") as f:
-    f.write(content)
-
-# Print the content for debugging
-print("Generated action file content:")
-print(content)
-'
-
+        # Run the JavaScript file
+        node ${{ github.action_path }}/generate-action.js
       shell: bash
 
     - name: run select-setup-actions
