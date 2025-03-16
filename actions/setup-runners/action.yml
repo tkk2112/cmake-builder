@@ -123,6 +123,7 @@ runs:
       shell: bash
 
     - name: run select-setup-actions
+      if: ${{ hashFiles('.select-setup-actions/action.yml') != '' }}
       uses: ./.select-setup-actions
       with:
         secret1: ${{ inputs.secret1 }}
