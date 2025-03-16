@@ -125,7 +125,7 @@ def main() -> None:
                 artifact_config["retention_days"] = args.artifacts["retention_days"]
 
         elif not default_should_store_artifact:
-            artifact_config = {}
+            artifact_config = None
 
         outputs = {
             "configure": configure_cmd or "",

@@ -100,6 +100,7 @@ jobs:
             --default-artifact-retention-days '${{ inputs.artifact_retention_days }}' \
             --preset '${{ matrix.preset }}' \
             --artifacts '${{ matrix.artifacts }}' > "$GITHUB_OUTPUT"
+          echo $GITHUB_OUTPUT
 
       - run: ${{ steps.do.outputs.configure }}
         if: steps.do.outputs.configure
