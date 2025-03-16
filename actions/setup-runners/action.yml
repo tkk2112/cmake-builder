@@ -61,7 +61,7 @@ runs:
 
         mkdir -p ./.select-setup-actions
 
-        cat <<INIT >> ./.select-setup-actions/action.yml
+        cat <<-'INIT' > ./.select-setup-actions/action.yml
         name: Dynamic Setup Action
         description: Dynamically generated action
 
@@ -87,7 +87,7 @@ runs:
 
         # Add the actions with explicit secret passing
         if [ "$BASE_ACTION" = "true" ]; then
-          cat <<BASE >> ./.select-setup-actions/action.yml
+          cat <<-'BASE' >> ./.select-setup-actions/action.yml
             - uses: ${BASE_ACTION_PATH}
               with:
                 secret1: \${{ inputs.secret1 }}
@@ -98,7 +98,7 @@ runs:
         fi
 
         if [ "$TOOLCHAIN_ACTION" = "true" ]; then
-          cat <<TOOLCHAIN >> ./.select-setup-actions/action.yml
+          cat <<-'TOOLCHAIN' >> ./.select-setup-actions/action.yml
             - uses: ${TOOLCHAIN_ACTION_PATH}
               with:
                 secret1: \${{ inputs.secret1 }}
@@ -109,7 +109,7 @@ runs:
         fi
 
         if [ "$PRESET_ACTION" = "true" ]; then
-          cat <<PRESET >> ./.select-setup-actions/action.yml
+          cat <<-'PRESET' >> ./.select-setup-actions/action.yml
             - uses: ${PRESET_ACTION_PATH}
               with:
                 secret1: \${{ inputs.secret1 }}
@@ -118,7 +118,6 @@ runs:
                 secret4: \${{ inputs.secret4 }}
         PRESET
         fi
-
 
       shell: bash
 
