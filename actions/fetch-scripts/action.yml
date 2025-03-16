@@ -1,0 +1,14 @@
+name: cmake-builder/fetch-scripts
+description: fetch scripts for cmake-builder
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+      with:
+        repository: 'tkk2112/cmake-builder'
+        path: './.cmake-builder'
+        sparse-checkout: |
+          .github/scripts
+    - uses: astral-sh/setup-uv@v5
