@@ -24,9 +24,9 @@ on:
         type: number
         default: 5
       cmake_project_root:
-        description: "CMakePresets.json directory (default: $GITHUB_WORKSPACE)"
+        description: "CMakePresets.json directory (default: .)"
         type: string
-        default: "${{ github.workspace }}"
+        default: "."
       presets:
         description: "JSON string with preset configurations"
         type: string
