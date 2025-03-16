@@ -94,22 +94,22 @@ def main() -> None:
     args: argparse.Namespace = parse_arguments()
     try:
         related_presets: Dict[str, List[str]] = get_related_preset_names(args.preset, args.cmake_project_root)
-        print(related_presets)
+
         configure_cmd = f"cmake --preset {args.preset}"
 
         build_cmd = None
-        if "buildPresets" in related_presets and related_presets["buildPresets"]:
-            build_preset = related_presets["buildPresets"][0]
+        if "buildPresets" in related_presets and related_presets["build"]:
+            build_preset = related_presets["build"][0]
             build_cmd = f"cmake --build --preset {build_preset}"
 
         test_cmd = None
-        if "testPresets" in related_presets and related_presets["testPresets"]:
-            test_preset = related_presets["testPresets"][0]
+        if "testPresets" in related_presets and related_presets["test"]:
+            test_preset = related_presets["test"][0]
             test_cmd = f"ctest --preset {test_preset}"
 
         package_cmd = None
-        if "testPresets" in related_presets and related_presets["packagePresets"]:
-            test_preset = related_presets["packagePresets"][0]
+        if "testPresets" in related_presets and related_presets["package"]:
+            test_preset = related_presets["package"][0]
             test_cmd = f"cmake --build --preset {test_preset} --target package"
 
         artifact_config = {
