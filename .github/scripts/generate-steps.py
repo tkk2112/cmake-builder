@@ -98,17 +98,17 @@ def main() -> None:
         configure_cmd = f"cmake --preset {args.preset}"
 
         build_cmd = None
-        if "buildPresets" in related_presets and related_presets["build"]:
+        if "build" in related_presets and related_presets["build"]:
             build_preset = related_presets["build"][0]
             build_cmd = f"cmake --build --preset {build_preset}"
 
         test_cmd = None
-        if "testPresets" in related_presets and related_presets["test"]:
+        if "test" in related_presets and related_presets["test"]:
             test_preset = related_presets["test"][0]
             test_cmd = f"ctest --preset {test_preset}"
 
         package_cmd = None
-        if "testPresets" in related_presets and related_presets["package"]:
+        if "package" in related_presets and related_presets["package"]:
             test_preset = related_presets["package"][0]
             test_cmd = f"cmake --build --preset {test_preset} --target package"
 
