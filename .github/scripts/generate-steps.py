@@ -117,14 +117,13 @@ def main() -> None:
             "retention_days": args.default_artifact_retention_days,
         }
 
-        if args.artifacts:
+        artifact_config = None
+        if args.artifacts or args.default_store_artifact:
             if "path" in args.artifacts:
                 default_artifact_config["path"] = "|\n            " + "\n            ".join(args.artifacts["path"])
             if "retention_days" in args.artifacts:
                 default_artifact_config["retention_days"] = args.artifacts["retention_days"]
             artifact_config = default_artifact_config
-        elif not args.default_store_artifact:
-            artifact_config = None
 
         outputs = {
             "configure": configure_cmd or "",
