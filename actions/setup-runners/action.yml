@@ -61,67 +61,79 @@ runs:
 
         mkdir -p ./.select-setup-actions
 
-        cat <<-INIT > ./.select-setup-actions/action.yml
-        name: Dynamic Setup Action
-        description: Dynamically generated action
+        # Use Python to generate the action file - with proper string handling
+        python3 -c '
+import os
 
-        # Input definitions for secrets
-        inputs:
-          secret1:
-            description: "Generic secret slot 1"
-            required: false
-          secret2:
-            description: "Generic secret slot 2"
-            required: false
-          secret3:
-            description: "Generic secret slot 3"
-            required: false
-          secret4:
-            description: "Generic secret slot 4"
-            required: false
+# Paths from bash variables
+base_path = os.environ.get("BASE_ACTION_PATH")
+toolchain_path = os.environ.get("TOOLCHAIN_ACTION_PATH")
+preset_path = os.environ.get("PRESET_ACTION_PATH")
 
-        runs:
-          using: composite
-          steps:
-        INIT
+# Action flags
+base_action = os.environ.get("BASE_ACTION")
+toolchain_action = os.environ.get("TOOLCHAIN_ACTION")
+preset_action = os.environ.get("PRESET_ACTION")
 
-        # Add the actions with explicit secret passing
-        if [ "$BASE_ACTION" = "true" ]; then
-          cat <<-BASE >> ./.select-setup-actions/action.yml
-            - uses: ${BASE_ACTION_PATH}
-              with:
-                secret1: \${{ inputs.secret1 }}
-                secret2: \${{ inputs.secret2 }}
-                secret3: \${{ inputs.secret3 }}
-                secret4: \${{ inputs.secret4 }}
-        BASE
-        fi
+# Create the action file content
+content = """name: Dynamic Setup Action
+description: Dynamically generated action
 
-        if [ "$TOOLCHAIN_ACTION" = "true" ]; then
-          cat <<-TOOLCHAIN >> ./.select-setup-actions/action.yml
-            - uses: ${TOOLCHAIN_ACTION_PATH}
-              with:
-                secret1: \${{ inputs.secret1 }}
-                secret2: \${{ inputs.secret2 }}
-                secret3: \${{ inputs.secret3 }}
-                secret4: \${{ inputs.secret4 }}
-        TOOLCHAIN
-        fi
+# Input definitions for secrets
+inputs:
+  secret1:
+    description: "Generic secret slot 1"
+    required: false
+  secret2:
+    description: "Generic secret slot 2"
+    required: false
+  secret3:
+    description: "Generic secret slot 3"
+    required: false
+  secret4:
+    description: "Generic secret slot 4"
+    required: false
 
-        if [ "$PRESET_ACTION" = "true" ]; then
-          cat <<-PRESET >> ./.select-setup-actions/action.yml
-            - uses: ${PRESET_ACTION_PATH}
-              with:
-                secret1: \${{ inputs.secret1 }}
-                secret2: \${{ inputs.secret2 }}
-                secret3: \${{ inputs.secret3 }}
-                secret4: \${{ inputs.secret4 }}
-        PRESET
-        fi
+runs:
+  using: composite
+  steps:"""
 
-        # Debug output to see the generated file
-        echo "Generated action file content:"
-        cat ./.select-setup-actions/action.yml
+# Add action steps based on flags
+if base_action == "true":
+    content += """
+    - uses: {}
+      with:
+        secret1: ${{{{ inputs.secret1 }}}}
+        secret2: ${{{{ inputs.secret2 }}}}
+        secret3: ${{{{ inputs.secret3 }}}}
+        secret4: ${{{{ inputs.secret4 }}}}""".format(base_path)
+
+if toolchain_action == "true":
+    content += """
+    - uses: {}
+      with:
+        secret1: ${{{{ inputs.secret1 }}}}
+        secret2: ${{{{ inputs.secret2 }}}}
+        secret3: ${{{{ inputs.secret3 }}}}
+        secret4: ${{{{ inputs.secret4 }}}}""".format(toolchain_path)
+
+if preset_action == "true":
+    content += """
+    - uses: {}
+      with:
+        secret1: ${{{{ inputs.secret1 }}}}
+        secret2: ${{{{ inputs.secret2 }}}}
+        secret3: ${{{{ inputs.secret3 }}}}
+        secret4: ${{{{ inputs.secret4 }}}}""".format(preset_path)
+
+# Write the content to file
+with open("./.select-setup-actions/action.yml", "w") as f:
+    f.write(content)
+
+# Print the content for debugging
+print("Generated action file content:")
+print(content)
+'
 
       shell: bash
 
