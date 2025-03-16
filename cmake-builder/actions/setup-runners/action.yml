@@ -1,0 +1,136 @@
+name: cmake-builder/setup-runners
+description: setup runners for cmake build
+
+inputs:
+  preset:
+    description: "preset name"
+    required: true
+  runs-on:
+    description: "runs-on name"
+    required: true
+  toolchain:
+    description: "toolchain name"
+    required: true
+  secret1:
+    description: "Generic secret slot 1"
+    required: false
+  secret2:
+    description: "Generic secret slot 2"
+    required: false
+  secret3:
+    description: "Generic secret slot 3"
+    required: false
+  secret4:
+    description: "Generic secret slot 4"
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: create select-setup-actions
+      run: |
+        set -x
+        BASE_PATH="./.github/actions/cmake-builder/${{ inputs.runs-on }}"
+
+        BASE_ACTION_PATH="${BASE_PATH}/base"
+        TOOLCHAIN_ACTION_PATH="${BASE_PATH}/toolchains/${{ inputs.toolchain }}"
+        PRESET_ACTION_PATH="${BASE_PATH}/presets/${{ inputs.preset }}"
+
+        BASE_ACTION="false"
+        TOOLCHAIN_ACTION="false"
+        PRESET_ACTION="false"
+
+        for action in BASE TOOLCHAIN PRESET; do
+          action_path_var="${action}_ACTION_PATH"
+          action_path="${!action_path_var}"
+
+          for ext in .yml .yaml; do
+            if [ -f "${action_path}/action${ext}" ]; then
+              echo "Found ${action} action file with extension ${ext}"
+              eval "${action}_ACTION=true"
+              break
+            fi
+          done
+        done
+
+        # Exit if no actions were found
+        if [ "$BASE_ACTION" = "false" ] && [ "$TOOLCHAIN_ACTION" = "false" ] && [ "$PRESET_ACTION" = "false" ]; then
+          echo "No actions found, exiting gracefully"
+          exit 0
+        fi
+
+        mkdir -p ./.select-setup-actions
+
+        cat <<INIT >> ./.select-setup-actions/action.yml
+        name: Dynamic Setup Action
+        description: Dynamically generated action
+
+        # Input definitions for secrets
+        inputs:
+          secret1:
+            description: "Generic secret slot 1"
+            required: false
+          secret2:
+            description: "Generic secret slot 2"
+            required: false
+          secret3:
+            description: "Generic secret slot 3"
+            required: false
+          secret4:
+            description: "Generic secret slot 4"
+            required: false
+
+        runs:
+          using: composite
+          steps:
+        INIT
+
+        # Add the actions with explicit secret passing
+        if [ "$BASE_ACTION" = "true" ]; then
+          cat <<BASE >> ./.select-setup-actions/action.yml
+            - uses: ${BASE_ACTION_PATH}
+              with:
+                secret1: \${{ inputs.secret1 }}
+                secret2: \${{ inputs.secret2 }}
+                secret3: \${{ inputs.secret3 }}
+                secret4: \${{ inputs.secret4 }}
+        BASE
+        fi
+
+        if [ "$TOOLCHAIN_ACTION" = "true" ]; then
+          cat <<TOOLCHAIN >> ./.select-setup-actions/action.yml
+            - uses: ${TOOLCHAIN_ACTION_PATH}
+              with:
+                secret1: \${{ inputs.secret1 }}
+                secret2: \${{ inputs.secret2 }}
+                secret3: \${{ inputs.secret3 }}
+                secret4: \${{ inputs.secret4 }}
+        TOOLCHAIN
+        fi
+
+        if [ "$PRESET_ACTION" = "true" ]; then
+          cat <<PRESET >> ./.select-setup-actions/action.yml
+            - uses: ${PRESET_ACTION_PATH}
+              with:
+                secret1: \${{ inputs.secret1 }}
+                secret2: \${{ inputs.secret2 }}
+                secret3: \${{ inputs.secret3 }}
+                secret4: \${{ inputs.secret4 }}
+        PRESET
+        fi
+
+
+      shell: bash
+
+    - name: run select-setup-actions
+      uses: ./.select-setup-actions
+      with:
+        secret1: ${{ inputs.secret1 }}
+        secret2: ${{ inputs.secret2 }}
+        secret3: ${{ inputs.secret3 }}
+        secret4: ${{ inputs.secret4 }}
+
+    - name: cleanup select-setup-actions
+      run: rm -rf ./.select-setup-actions
+      if: always()
+      shell: bash

@@ -2,15 +2,16 @@
 
 import argparse
 import json
-import jsonschema
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict, cast
+
+import jsonschema
 
 
 def parse_json(json_str: str) -> Dict[str, Any]:
     try:
-        return json.loads(json_str)
+        return cast(Dict[str, Any], json.loads(json_str))
     except json.JSONDecodeError as err:
         raise ValueError(f"JSON decode error: {err}")
 

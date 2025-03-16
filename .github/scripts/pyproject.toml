@@ -3,7 +3,16 @@ name = "cmake-builder"
 version = "0.1.0"
 description = "python scripts for the cmake-builder action"
 requires-python = ">=3.11"
-dependencies = [
-    "jsonschema>=4.23.0",
-    "requests>=2.32.3",
-]
+dependencies = ["cmakepresets", "jsonschema>=4.23.0", "requests>=2.32.3"]
+
+[tool.uv.sources]
+cmakepresets = { git = "https://github.com/tkk2112/cmakepresets.git" }
+pyproject-aliases = { git = "https://github.com/tkk2112/pyproject_aliases.git" }
+
+[tool.aliases]
+validate = "uv run validate-presets.py --presets"
+construct = "uv run construct-matrix.py"
+generate = "uv run generate-steps.py"
+
+[dependency-groups]
+dev = ["pyproject-aliases"]

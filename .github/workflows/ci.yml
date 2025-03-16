@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build and Test
+    uses: ./.github/workflows/cmake-builder.yml
+    with:
+      runs-on: ubuntu-latest
+      toolchain: gcc
+      store_artifact: true
+      artifact_path: tests/build
+      cmake_project_root: ${{ github.workspace }}/tests
+      presets: |
+        {
+          "debug": {},
+          "release": {}
+        }

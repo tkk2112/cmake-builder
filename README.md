@@ -1,6 +1,6 @@
 # CMake Builder
 
-A reusable GitHub Actions workflow for building CMake-based projects with various presets.
+A reusable GitHub workflow for building CMake-based projects with using presets.
 
 ## Usage
 
@@ -34,7 +34,10 @@ jobs:
 
 - `runs-on`: Default runner to use (default: "ubuntu-latest")
 - `toolchain`: Default toolchain to use (default: "gcc")
-- `presets`: JSON configuration of build presets
+- `artifact_store`: Should artifacts be stored (default: false)
+- `artifact_retention_days`: Number of days to store artifacts (default: 5)
+- `artifact_path`: Artifact store path (default: "build")
+- `presets`: JSON configuration of build presets (**required**)
 
 ## License
 
