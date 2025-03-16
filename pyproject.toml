@@ -7,9 +7,32 @@ requires-python = ">=3.11"
 
 [tool.uv.sources]
 pyproject-aliases = { git = "https://github.com/tkk2112/pyproject_aliases.git" }
+cmakepresets = { git = "https://github.com/tkk2112/cmakepresets.git" }
 
 [dependency-groups]
-dev = ["pre-commit>=4.1.0", "pyproject-aliases", "ruff>=0.10.0"]
+dev = [
+    "cmakepresets",
+    "isort>=6.0.1",
+    "mypy>=1.15.0",
+    "pre-commit>=4.1.0",
+    "pyproject-aliases",
+    "ruff>=0.10.0",
+]
+
+[tool.ruff]
+line-length = 158
+lint.select = ["E", "F", "W", "C90"]
+
+[tool.isort]
+profile = "black"
+line_length = 158
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+disallow_incomplete_defs = true
+ignore_missing_imports = true
+
 
 [tool.aliases]
 check = "uv run pre-commit run --all-files"

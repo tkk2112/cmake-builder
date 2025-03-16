@@ -3,8 +3,9 @@
 import argparse
 import json
 import sys
-from typing import Dict, List, Final, Optional, Union
 from pathlib import Path
+from typing import Any, Dict, Final, List, Optional, Union, cast
+
 from cmakepresets import CMakePresets
 
 
@@ -25,12 +26,15 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate build steps from preset")
 
     parser.add_argument(
-        "--cmake-project-root", required=True, type=Path,
-        help="Root directory of the CMake project"
+        "--cmake-project-root",
+        required=True,
+        type=Path,
+        help="Root directory of the CMake project",
     )
+
     def parse_boolean(x: str) -> bool:
-        positive_values = ['true', '1', 'yes', 'y', 'on']
-        negative_values = ['false', '0', 'no', 'n', 'off']
+        positive_values = ["true", "1", "yes", "y", "on"]
+        negative_values = ["false", "0", "no", "n", "off"]
 
         value_lower = x.lower()
         if value_lower in positive_values:
@@ -44,45 +48,44 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--default-store-artifact",
         type=parse_boolean,
-        help="Default boolean value whether to store artifacts (true/false/yes/no/1/0)"
+        help="Default boolean value whether to store artifacts (true/false/yes/no/1/0)",
     )
 
     default_artifact_path_help: Final[str] = "\n\nDefault artifact path (e.g., 'path/to/artifacts' or 'path1,path2' or '!path/to/exclude')\n\n"
+
     def parse_artifact_path(x: str) -> List[str]:
         try:
-            return [p.strip() for p in x.replace(',', ' ').split() if p.strip()]
-        except Exception as e:
+            return [p.strip() for p in x.replace(",", " ").split() if p.strip()]
+        except Exception:
             print(f"Error parsing --default-artifact-path: {default_artifact_path_help}")
             raise
-    parser.add_argument(
-        "--default-artifact-path", required=True,
-        type=parse_artifact_path,
-        help=default_artifact_path_help
-    )
-    parser.add_argument(
-        "--default-artifact-retention-days", required=True, type=int,
-        help="Default retention days for artifacts"
-    )
-    parser.add_argument(
-        "--preset", required=True, type=str,
-        help="The preset to use"
-    )
 
-    artifacts_help: Final[str] = "\n\nThe artifacts configuration as JSON (e.g., {\"path\": [\"dir1\", \"dir2\", \"!dir1/**/*.md\"], \"retention_days\": 5})\n\n"
+    parser.add_argument(
+        "--default-artifact-path",
+        required=True,
+        type=parse_artifact_path,
+        help=default_artifact_path_help,
+    )
+    parser.add_argument(
+        "--default-artifact-retention-days",
+        required=True,
+        type=int,
+        help="Default retention days for artifacts",
+    )
+    parser.add_argument("--preset", required=True, type=str, help="The preset to use")
+
+    artifacts_help: Final[str] = '\n\nThe artifacts configuration as JSON (e.g., {"path": ["dir1", "dir2", "!dir1/**/*.md"], "retention_days": 5})\n\n'
+
     def parse_artifacts(x: Optional[str]) -> Dict[str, Union[List[str], int]]:
         if not x:
             return {}
         try:
-            return json.loads(x)
+            return cast(Dict[str, Any], json.loads(x))
         except Exception:
             print(f"Error parsing --artifacts: {artifacts_help}")
             raise
 
-    parser.add_argument(
-        "--artifacts",
-        type=parse_artifacts,
-        help=artifacts_help
-    )
+    parser.add_argument("--artifacts", type=parse_artifacts, help=artifacts_help)
 
     return parser.parse_args()
 
@@ -111,7 +114,7 @@ def main() -> None:
 
         artifact_config = {
             "path": "|\n            " + "\n            ".join(args.default_artifact_path),
-            "retention_days": args.default_artifact_retention_days
+            "retention_days": args.default_artifact_retention_days,
         }
         default_should_store_artifact = args.default_store_artifact
 
@@ -129,7 +132,7 @@ def main() -> None:
             "build": build_cmd or "",
             "test": test_cmd or "",
             "package": package_cmd or "",
-            "artifact": json.dumps(artifact_config) if artifact_config else ""
+            "artifact": json.dumps(artifact_config) if artifact_config else "",
         }
 
         for key, value in outputs.items():
