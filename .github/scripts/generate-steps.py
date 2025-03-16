@@ -94,7 +94,7 @@ def main() -> None:
     args: argparse.Namespace = parse_arguments()
     try:
         related_presets: Dict[str, List[str]] = get_related_preset_names(args.preset, args.cmake_project_root)
-
+        print(related_presets)
         configure_cmd = f"cmake --preset {args.preset}"
 
         build_cmd = None
