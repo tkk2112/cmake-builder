@@ -1,0 +1,139 @@
+name: cmake-builder
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: "runs-on for the workflow (default: ubuntu-latest)"
+        type: string
+        default: "ubuntu-latest"
+      toolchain:
+        description: "toolchain to use for building (default: false)"
+        type: string
+        default: "gcc"
+      store_artifact:
+        description: "store artifacts (default: false)"
+        type: boolean
+        default: false
+      artifact_path:
+        description: "artifact path (default: build)"
+        type: string
+        default: "build"
+      artifact_retention_days:
+        description: "artifact retention days (default: 5)"
+        type: number
+        default: 5
+      cmake_project_root:
+        description: "CMakePresets.json directory (default: .)"
+        type: string
+        default: "."
+      presets:
+        description: "JSON string with preset configurations"
+        type: string
+        required: true
+    secrets:
+      SECRET1:
+        required: false
+      SECRET2:
+        required: false
+      SECRET3:
+        required: false
+      SECRET4:
+        required: false
+
+jobs:
+  validate-presets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
+
+      - name: validate presets input against schema
+        working-directory: ./.cmake-builder/.github/scripts
+        run: uv run alias validate '${{ inputs.presets }}'
+
+  construct-matrix:
+    needs: validate-presets
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix-constructor.outputs.matrix }}
+    steps:
+      - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
+      - name: construct matrix
+        id: matrix-constructor
+        working-directory: ./.cmake-builder/.github/scripts
+        run: |
+          uv run alias construct \
+            --default-runs-on '${{ inputs.runs-on }}' \
+            --default-toolchain '${{ inputs.toolchain }}' \
+            --presets '${{ inputs.presets }}' | tee "$GITHUB_OUTPUT"
+
+  main:
+    needs: construct-matrix
+    name: ${{ matrix.preset }} (${{ matrix.toolchain }}@${{ matrix.runs-on }})
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.construct-matrix.outputs.matrix) }}
+
+    steps:
+      - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
+
+      - name: trigger setup-runners action
+        uses: tkk2112/cmake-builder/actions/setup-runners@main
+        with:
+          preset: ${{ matrix.preset }}
+          runs-on: ${{ matrix.runs-on }}
+          toolchain: ${{ matrix.toolchain }}
+          secret1: ${{ secrets.SECRET1 }}
+          secret2: ${{ secrets.SECRET2 }}
+          secret3: ${{ secrets.SECRET3 }}
+          secret4: ${{ secrets.SECRET4 }}
+
+      - name: generate steps
+        id: do
+        working-directory: ./.cmake-builder/.github/scripts
+        run: |
+          uv run alias generate \
+            --cmake-project-root "$GITHUB_WORKSPACE/${{ inputs.cmake_project_root }}" \
+            --default-store-artifact '${{ inputs.store_artifact }}' \
+            --default-artifact-path '${{ inputs.artifact_path }}' \
+            --default-artifact-retention-days '${{ inputs.artifact_retention_days }}' \
+            --preset '${{ matrix.preset }}' \
+            --artifacts '${{ matrix.artifacts }}' | tee "$GITHUB_OUTPUT"
+
+      - run: ${{ steps.do.outputs.configure }}
+        if: steps.do.outputs.configure
+        working-directory: ${{ github.workspace }}/${{ inputs.cmake_project_root }}
+
+      - run: ${{ steps.do.outputs.build }}
+        if: steps.do.outputs.build
+        working-directory: ${{ github.workspace }}/${{ inputs.cmake_project_root }}
+
+      - run: ${{ steps.do.outputs.test }}
+        if: steps.do.outputs.test
+        working-directory: ${{ github.workspace }}/${{ inputs.cmake_project_root }}
+
+      - run: ${{ steps.do.outputs.package }}
+        if: steps.do.outputs.package
+        working-directory: ${{ github.workspace }}/${{ inputs.cmake_project_root }}
+
+      - uses: actions/upload-artifact@v4
+        if: steps.do.outputs.artifact
+        with:
+          name: ${{ matrix.preset }}
+          path: ${{ fromJSON(steps.do.outputs.artifact).path }}
+          retention-days: ${{ fromJSON(steps.do.outputs.artifact).retention_days }}
+
+  verify-matrix:
+    name: verify-matrix
+    needs: main
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - shell: python
+        run: |
+          import sys
+          if all(result == "success" for result in ${{ toJSON(needs.*.result) }}):
+            sys.exit(0)
+          else:
+            sys.exit(1)
