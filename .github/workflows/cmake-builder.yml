@@ -45,7 +45,7 @@ jobs:
   validate_presets:
     runs-on: ubuntu-latest
     steps:
-      - uses: tkk2112/github/cmake-builder/actions/fetch-scripts@main
+      - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
 
       - name: validate presets input against schema
         working-directory: .github/cmake-builder/scripts
@@ -57,7 +57,7 @@ jobs:
     outputs:
       matrix: ${{ steps.matrix-constructor.outputs.matrix }}
     steps:
-      - uses: tkk2112/github/cmake-builder/actions/fetch-scripts@main
+      - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
       - name: construct matrix
         id: matrix-constructor
         working-directory: .github/cmake-builder/scripts
@@ -76,10 +76,10 @@ jobs:
       matrix: ${{ fromJSON(needs.construct-matrix.outputs.matrix) }}
 
     steps:
-      - uses: tkk2112/github/cmake-builder/actions/fetch-scripts@main
+      - uses: tkk2112/cmake-builder/actions/fetch-scripts@main
 
       - name: trigger setup-runners action
-        uses: tkk2112/github/cmake-builder/actions/setup-runners@main
+        uses: tkk2112/cmake-builder/actions/setup-runners@main
         with:
           preset: ${{ matrix.preset }}
           runs-on: ${{ matrix.runs-on }}
