@@ -1,0 +1,45 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "cmake-builder presets schema",
+    "description": "schema for configuring jobs based on preset names",
+    "type": "object",
+    "minProperties": 1,
+    "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+            "title": "Preset",
+            "type": "object",
+            "properties": {
+                "toolchain": {
+                    "type": "string",
+                    "description": "toolchain name"
+                },
+                "runs-on": {
+                    "type": "string",
+                    "description": "runs-on for the workflow"
+                },
+                "artifact": {
+                    "type": "object",
+                    "description": "upload artifacts",
+                    "properties": {
+                        "path": {
+                            "type": "array",
+                            "description": "paths to upload",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "retention_days": {
+                            "type": "integer",
+                            "description": "artifact retention days"
+                        }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                }
+            },
+            "required": [],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}
