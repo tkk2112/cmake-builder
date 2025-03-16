@@ -121,8 +121,8 @@ jobs:
         if: steps.do.outputs.artifact
         with:
           name: ${{ matrix.preset }}
-          path: ${{ fromJSON(steps.do.outputs.artifact.path) }}
-          retention-days: ${{ fromJSON(steps.do.outputs.artifact.retention_days) }}
+          path: steps.do.outputs.artifact.path
+          retention-days: steps.do.outputs.artifact.retention_days
 
   verify-matrix:
     name: verify-matrix
