@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.6.6
+    hooks:
+      - id: uv-sync
+        stages: [pre-commit, post-checkout, post-merge, post-rewrite]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.10.0
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.15.0
+    hooks:
+      -   id: mypy
+          args: [--strict]
+          additional_dependencies:
+            - types-jsonschema
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
