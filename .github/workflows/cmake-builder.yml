@@ -100,7 +100,7 @@ jobs:
             --default-artifact-retention-days '${{ inputs.artifact_retention_days }}' \
             --preset '${{ matrix.preset }}' \
             --artifacts '${{ matrix.artifacts }}' > "$GITHUB_OUTPUT"
-          cat $(echo $GITHUB_OUTPUT)
+          cat "$GITHUB_OUTPUT"
 
       - run: ${{ steps.do.outputs.configure }}
         if: steps.do.outputs.configure
@@ -122,9 +122,8 @@ jobs:
         if: steps.do.outputs.artifact
         with:
           name: ${{ matrix.preset }}
-          path: steps.do.outputs.artifact.path
-          retention-days: steps.do.outputs.artifact.retention_days
-
+          path: ${{ fromJSON(steps.do.outputs.artifact).path }}
+          retention-days: ${{ fromJSON(steps.do.outputs.artifact).retention_days }}
   verify-matrix:
     name: verify-matrix
     needs: main

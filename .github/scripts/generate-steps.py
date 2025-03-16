@@ -109,22 +109,21 @@ def main() -> None:
 
         package_cmd = None
         if "package" in related_presets and related_presets["package"]:
-            test_preset = related_presets["package"][0]
-            test_cmd = f"cmake --build --preset {test_preset} --target package"
+            package_preset = related_presets["package"][0]
+            package_cmd = f"cmake --build --preset {package_preset} --target package"
 
-        artifact_config = {
+        default_artifact_config: Dict[str, Any] = {
             "path": "|\n            " + "\n            ".join(args.default_artifact_path),
             "retention_days": args.default_artifact_retention_days,
         }
-        default_should_store_artifact = args.default_store_artifact
 
         if args.artifacts:
             if "path" in args.artifacts:
-                artifact_config["path"] = "|\n            " + "\n            ".join(args.artifacts["path"])
+                default_artifact_config["path"] = "|\n            " + "\n            ".join(args.artifacts["path"])
             if "retention_days" in args.artifacts:
-                artifact_config["retention_days"] = args.artifacts["retention_days"]
-
-        elif not default_should_store_artifact:
+                default_artifact_config["retention_days"] = args.artifacts["retention_days"]
+            artifact_config = default_artifact_config
+        elif not args.default_store_artifact:
             artifact_config = None
 
         outputs = {
