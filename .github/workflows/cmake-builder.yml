@@ -93,6 +93,8 @@ jobs:
         id: do
         working-directory: ./.cmake-builder/.github/scripts
         run: |
+          set -x
+          echo $(env)
           uv run alias generate \
             --cmake-project-root '${{ inputs.cmake_project_root }}' \
             --default-store-artifact '${{ inputs.store_artifact }}' \
