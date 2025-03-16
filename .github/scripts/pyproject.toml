@@ -12,6 +12,7 @@ pyproject-aliases = { git = "https://github.com/tkk2112/pyproject_aliases.git" }
 [tool.aliases]
 validate = "uv run validate-presets.py --presets"
 construct = "uv run construct-matrix.py"
+generate = "uv run generate-steps.py"
 
 [dependency-groups]
 dev = ["pyproject-aliases"]
