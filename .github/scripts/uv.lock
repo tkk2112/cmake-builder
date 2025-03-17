@@ -96,7 +96,7 @@ dev = [{ name = "pyproject-aliases", git = "https://github.com/tkk2112/pyproject
 [[package]]
 name = "cmakepresets"
 version = "0.2.1"
-source = { git = "https://github.com/tkk2112/cmakepresets.git#8e773473c1ff50239a6d42933299e3daaccf9475" }
+source = { git = "https://github.com/tkk2112/cmakepresets.git#7a7215b971b62aecdd9bbacbb6def5ba2523b560" }
 dependencies = [
     { name = "jsonschema" },
     { name = "requests" },
