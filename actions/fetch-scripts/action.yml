@@ -10,5 +10,5 @@ runs:
         repository: 'tkk2112/cmake-builder'
         path: './.cmake-builder'
         sparse-checkout: |
-          .github/scripts
+          scripts
     - uses: astral-sh/setup-uv@v5
