@@ -95,8 +95,8 @@ dev = [{ name = "pyproject-aliases", git = "https://github.com/tkk2112/pyproject
 
 [[package]]
 name = "cmakepresets"
-version = "0.2.1"
-source = { git = "https://github.com/tkk2112/cmakepresets.git#7a7215b971b62aecdd9bbacbb6def5ba2523b560" }
+version = "0.3.1"
+source = { git = "https://github.com/tkk2112/cmakepresets.git#5c5530bdaeab60b2196ae07e90c38a15d1dca7cd" }
 dependencies = [
     { name = "jsonschema" },
     { name = "requests" },
@@ -172,7 +172,7 @@ wheels = [
 [[package]]
 name = "pyproject-aliases"
 version = "0.1.0"
-source = { git = "https://github.com/tkk2112/pyproject_aliases.git#9d6e74d537e4b3271632cb64190955575ebe766c" }
+source = { git = "https://github.com/tkk2112/pyproject_aliases.git#3cf290a335c106508a1d58e22e62437bebf8dcb8" }
 
 [[package]]
 name = "referencing"
