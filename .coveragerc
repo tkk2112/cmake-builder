@@ -1,0 +1,8 @@
+[run]
+source = .github/scripts
+omit = tests/*
+
+[report]
+exclude_lines =
+    except ValueError as e:
+    if __name__ == .__main__.:

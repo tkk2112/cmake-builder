@@ -3,37 +3,64 @@ name = "cmake-builder"
 version = "0.1.0"
 readme = "README.md"
 authors = [{ name = "Thomas Kristensen", email = "thomas@sl.m04r.space" }]
+license = "MIT"
+license-files = ["LICEN[CS]E.*"]
 requires-python = ">=3.11"
 classifiers = ["Private :: Do Not Upload"]
 
 [tool.uv.sources]
 pyproject-aliases = { git = "https://github.com/tkk2112/pyproject_aliases.git" }
-cmakepresets = { git = "https://github.com/tkk2112/cmakepresets.git" }
+cmake-builder = { workspace = true }
 
 [dependency-groups]
 dev = [
-    "cmakepresets",
+    "cmake-builder",
+    "cmakepresets>=0.4.0",
     "isort>=6.0.1",
     "mypy>=1.15.0",
     "pre-commit>=4.1.0",
     "pyproject-aliases",
     "ruff>=0.10.0",
+    "pytest-cov>=6.0.0",
+    "pytest>=8.3.5",
+    "pytest-random-order>=1.1.1",
 ]
 
 [tool.ruff]
 line-length = 158
 lint.select = ["E", "F", "W", "C90"]
+include = [".github/scripts/*.py", "tests/*.py"]
 
 [tool.isort]
 profile = "black"
 line_length = 158
+src_paths = [".github/scripts", "tests"]
 
 [tool.mypy]
 python_version = "3.11"
 check_untyped_defs = true
 disallow_incomplete_defs = true
 ignore_missing_imports = true
+files = [".github/scripts/*.py", "tests/*.py"]
 
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--random-order",
+    "--cov=.github/scripts",
+    "--no-cov-on-fail",
+    "--cov-branch",
+    "--cov-report=term",
+    "--cov-report=html",
+]
+
+[tool.coverage.run]
+source = [".github/scripts"]
+omit = ["tests/*"]
 
 [tool.aliases]
 check = "uv run pre-commit run --all-files"
+test = "uv run pytest"

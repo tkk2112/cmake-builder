@@ -1,13 +1,12 @@
 [project]
 name = "cmake-builder"
 version = "0.1.0"
-description = "python scripts for the cmake-builder action"
+description = "scripts for the cmake-builder workflow"
 requires-python = ">=3.11"
-dependencies = ["cmakepresets", "jsonschema>=4.23.0", "requests>=2.32.3"]
+dependencies = ["cmakepresets>=0.4.0", "jsonschema>=4.23.0", "requests>=2.32.3"]
 classifiers = ["Private :: Do Not Upload"]
 
 [tool.uv.sources]
-cmakepresets = { git = "https://github.com/tkk2112/cmakepresets.git" }
 pyproject-aliases = { git = "https://github.com/tkk2112/pyproject_aliases.git" }
 
 [tool.aliases]
