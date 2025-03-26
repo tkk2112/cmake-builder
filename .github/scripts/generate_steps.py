@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Any, Dict, Final, List, Optional, Union, cast
 
 from cmakepresets import CMakePresets
+from cmakepresets.constants import CONFIGURE
 
 
-def get_related_preset_names(preset: str, cmake_project_root: Path) -> Dict[str, List[str]]:
-    presets = CMakePresets(cmake_project_root)
+def get_related_preset_names(presets: CMakePresets, preset: str) -> dict[str, list[str]]:
     all_related = presets.find_related_presets(preset)
 
     result: Dict[str, List[str]] = {}
@@ -51,21 +51,6 @@ def parse_arguments() -> argparse.Namespace:
         help="Default boolean value whether to store artifacts (true/false/yes/no/1/0)",
     )
 
-    default_artifact_path_help: Final[str] = "\n\nDefault artifact path (e.g., 'path/to/artifacts' or 'path1,path2' or '!path/to/exclude')\n\n"
-
-    def parse_artifact_path(x: str) -> List[str]:
-        try:
-            return [p.strip() for p in x.replace(",", " ").split() if p.strip()]
-        except Exception:
-            print(f"Error parsing --default-artifact-path: {default_artifact_path_help}")
-            raise
-
-    parser.add_argument(
-        "--default-artifact-path",
-        required=True,
-        type=parse_artifact_path,
-        help=default_artifact_path_help,
-    )
     parser.add_argument(
         "--default-artifact-retention-days",
         required=True,
@@ -93,7 +78,9 @@ def parse_arguments() -> argparse.Namespace:
 def main() -> None:
     args: argparse.Namespace = parse_arguments()
     try:
-        related_presets: Dict[str, List[str]] = get_related_preset_names(args.preset, args.cmake_project_root)
+        presets = CMakePresets(args.cmake_project_root)
+
+        related_presets: dict[str, list[str]] = get_related_preset_names(presets, args.preset)
 
         configure_cmd = f"cmake --preset {args.preset}"
 
@@ -112,8 +99,10 @@ def main() -> None:
             package_preset = related_presets["package"][0]
             package_cmd = f"cmake --build --preset {package_preset} --target package"
 
-        default_artifact_config: Dict[str, Any] = {
-            "path": "|\n            " + "\n            ".join(args.default_artifact_path),
+        resolved = presets.resolve_macro_values(CONFIGURE, args.preset)
+
+        default_artifact_config: dict[str, Any] = {
+            "path": "|\n            " + "\n            ".join(resolved.get("binaryDir", "build")),
             "retention_days": args.default_artifact_retention_days,
         }
 

@@ -36,7 +36,6 @@ jobs:
 - `runs-on`: Default runner to use (default: "ubuntu-latest")
 - `toolchain`: Default toolchain to use (default: "gcc")
 - `store_artifact`: Should artifacts be stored (default: false)
-- `artifact_path`: Artifact store path (default: "build")
 - `artifact_retention_days`: Number of days to store artifacts (default: 5)
 - `cmake_project_root`: CMakePresets.json directory (default: .)
 - `presets`: JSON configuration of build presets (**required**)
