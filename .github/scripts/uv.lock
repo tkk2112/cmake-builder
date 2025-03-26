@@ -85,7 +85,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cmakepresets", git = "https://github.com/tkk2112/cmakepresets.git" },
+    { name = "cmakepresets", specifier = ">=0.4.0" },
     { name = "jsonschema", specifier = ">=4.23.0" },
     { name = "requests", specifier = ">=2.32.3" },
 ]
@@ -95,12 +95,16 @@ dev = [{ name = "pyproject-aliases", git = "https://github.com/tkk2112/pyproject
 
 [[package]]
 name = "cmakepresets"
-version = "0.3.1"
-source = { git = "https://github.com/tkk2112/cmakepresets.git#5c5530bdaeab60b2196ae07e90c38a15d1dca7cd" }
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
     { name = "requests" },
     { name = "rich" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/20/73/c062431c7aeea46c32168be04ef5e887bc943e1aba981510aebe3af900c6/cmakepresets-0.4.0.tar.gz", hash = "sha256:8f8351b9a98a61d8ecb9bd41dfbfd7007b95956af9773ec8ce0759e8d0e2f4d9", size = 87838 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c9/cd/3dc3c0f082fe5e3a3837e581212f3fe3bbe4f238f1ac0d647fe048e89459/cmakepresets-0.4.0-py3-none-any.whl", hash = "sha256:086d912d25b9e1b795ab69f4e752cfdc385dd4a1ffa6172ff410a9556b0db8cd", size = 25824 },
 ]
 
 [[package]]
