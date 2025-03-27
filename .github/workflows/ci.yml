@@ -7,8 +7,27 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    name: Build and Test
+  test-scripts:
+    name: Test Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: 3.11
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-5|${{ hashFiles('uv.lock') }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - run: uv run alias check
+      - run: uv run alias test
+
+  test-workflow:
+    name: Test Workflow
     uses: ./.github/workflows/cmake-builder.yml
     with:
       runs-on: ubuntu-latest
@@ -17,6 +36,13 @@ jobs:
       presets: |
         {
           "debug": {},
-          "release": {}
-          "tests": { "artifact": { "path": ["tests/build"], "retention_days": 1 }}
+          "release": { "artifact": { "retention_days": 1 }}
         }
+
+  test:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs: [test-scripts, test-workflow]
+    steps:
+      - run: exit 1
+        if: ${{ contains(toJSON(needs.*.result), 'failure') || contains(toJSON(needs.*.result), 'cancelled') }}

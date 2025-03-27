@@ -2,18 +2,20 @@
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Union, cast
+from typing import Any, Final, cast
 
 from cmakepresets import CMakePresets
 from cmakepresets.constants import CONFIGURE
+from cmakepresets.paths import CMakeRoot
 
 
 def get_related_preset_names(presets: CMakePresets, preset: str) -> dict[str, list[str]]:
     all_related = presets.find_related_presets(preset)
 
-    result: Dict[str, List[str]] = {}
+    result: dict[str, list[str]] = {}
     if all_related:
         for preset_type, presets_list in all_related.items():
             preset_names = [p.get("name") for p in presets_list if p.get("name")]
@@ -59,73 +61,99 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument("--preset", required=True, type=str, help="The preset to use")
 
-    artifacts_help: Final[str] = '\n\nThe artifacts configuration as JSON (e.g., {"path": ["dir1", "dir2", "!dir1/**/*.md"], "retention_days": 5})\n\n'
+    artifact_help: Final[str] = '\n\nThe artifact configuration as JSON (e.g., {"path": ["dir1", "dir2", "!dir1/**/*.md"], "retention_days": 5})\n\n'
 
-    def parse_artifacts(x: Optional[str]) -> Dict[str, Union[List[str], int]]:
-        if not x:
-            return {}
+    def parse_artifact(x: str) -> dict[str, list[str] | int]:
+        if str(x).strip() == "" or str(x).strip() == "''":
+            x = "{}"
         try:
-            return cast(Dict[str, Any], json.loads(x))
+            return cast(dict[str, Any], json.loads(x))
         except Exception:
-            print(f"Error parsing --artifacts: {artifacts_help}")
+            print(f"Error parsing --artifact: {artifact_help}")
             raise
 
-    parser.add_argument("--artifacts", type=parse_artifacts, help=artifacts_help)
+    parser.add_argument("--artifact", type=parse_artifact, default={}, help=artifact_help)
 
     return parser.parse_args()
 
 
+def generate_steps(related_presets: dict[str, list[str]]) -> dict[str, str]:
+    steps: dict[str, str] = {"build": "", "test": "", "package": ""}
+    if "build" in related_presets and related_presets["build"]:
+        build_preset = related_presets["build"][0]
+        steps["build"] = f"cmake --build --preset {build_preset}"
+
+    if "test" in related_presets and related_presets["test"]:
+        test_preset = related_presets["test"][0]
+        steps["test"] = f"ctest --preset {test_preset}"
+
+    if "package" in related_presets and related_presets["package"]:
+        package_preset = related_presets["package"][0]
+        steps["package"] = f"cmake --build --preset {package_preset} --target package"
+    return steps
+
+
+def get_binary_dir_path(presets: CMakePresets, preset_name: str, root: CMakeRoot) -> str:
+    """Get the binary directory path relative to workspace or project root."""
+    resolved = presets.resolve_macro_values(CONFIGURE, preset_name)
+    binary_dir = Path(resolved.get("binaryDir", "build"))
+
+    if "GITHUB_WORKSPACE" in os.environ:
+        workspace_path = Path(os.environ["GITHUB_WORKSPACE"])
+        try:
+            return str(binary_dir.relative_to(workspace_path))
+        except ValueError:
+            pass
+    return cast(str, root.get_relative_path(binary_dir))
+
+
 def main() -> None:
-    args: argparse.Namespace = parse_arguments()
     try:
-        presets = CMakePresets(args.cmake_project_root)
+        args: argparse.Namespace = parse_arguments()
+        root = CMakeRoot(args.cmake_project_root)
+        presets = CMakePresets(root)
 
-        related_presets: dict[str, list[str]] = get_related_preset_names(presets, args.preset)
+        config_preset = presets.get_preset_by_name(CONFIGURE, args.preset)
 
-        configure_cmd = f"cmake --preset {args.preset}"
+        if config_preset:
+            related_presets: dict[str, list[str]] = get_related_preset_names(presets, args.preset)
+            configure_cmd = f"cmake --preset {args.preset}"
+        else:
+            raise ValueError(f"Preset '{args.preset}' not found in the CMake project")
 
-        build_cmd = None
-        if "build" in related_presets and related_presets["build"]:
-            build_preset = related_presets["build"][0]
-            build_cmd = f"cmake --build --preset {build_preset}"
+        steps = generate_steps(related_presets)
 
-        test_cmd = None
-        if "test" in related_presets and related_presets["test"]:
-            test_preset = related_presets["test"][0]
-            test_cmd = f"ctest --preset {test_preset}"
-
-        package_cmd = None
-        if "package" in related_presets and related_presets["package"]:
-            package_preset = related_presets["package"][0]
-            package_cmd = f"cmake --build --preset {package_preset} --target package"
-
-        resolved = presets.resolve_macro_values(CONFIGURE, args.preset)
+        relative_path = get_binary_dir_path(presets, args.preset, root)
 
         default_artifact_config: dict[str, Any] = {
-            "path": "|\n            " + "\n            ".join(resolved.get("binaryDir", "build")),
+            "path": [relative_path],
             "retention_days": args.default_artifact_retention_days,
         }
 
         artifact_config = None
-        if args.artifacts or args.default_store_artifact:
-            if "path" in args.artifacts:
-                default_artifact_config["path"] = "|\n            " + "\n            ".join(args.artifacts["path"])
-            if "retention_days" in args.artifacts:
-                default_artifact_config["retention_days"] = args.artifacts["retention_days"]
+
+        if args.artifact or args.default_store_artifact:
+            if "path" in args.artifact:
+                default_artifact_config["path"] = args.artifact["path"]
+            if "retention_days" in args.artifact:
+                default_artifact_config["retention_days"] = args.artifact["retention_days"]
+
+            default_artifact_config["path"] = "\n".join(default_artifact_config["path"])
+
             artifact_config = default_artifact_config
 
         outputs = {
             "configure": configure_cmd or "",
-            "build": build_cmd or "",
-            "test": test_cmd or "",
-            "package": package_cmd or "",
+            "build": steps["build"],
+            "test": steps["test"],
+            "package": steps["package"],
             "artifact": json.dumps(artifact_config) if artifact_config else "",
         }
 
         for key, value in outputs.items():
             print(f"{key}={value}")
 
-    except ValueError as e:
+    except Exception as e:
         sys.stderr.write(f"Error: {e}\n")
         sys.exit(1)
 

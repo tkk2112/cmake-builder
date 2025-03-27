@@ -4,23 +4,23 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 import jsonschema
 
 
-def parse_json(json_str: str) -> Dict[str, Any]:
+def parse_json(json_str: str) -> dict[str, Any]:
     try:
-        return cast(Dict[str, Any], json.loads(json_str))
+        return cast(dict[str, Any], json.loads(json_str))
     except json.JSONDecodeError as err:
         raise ValueError(f"JSON decode error: {err}")
 
 
-def validate_presets(presets_data: Dict[str, Any]) -> None:
+def validate_presets(presets_data: dict[str, Any]) -> None:
     schema_path = Path(__file__).parent / "preset-schema.json"
 
     try:
-        with open(schema_path, "r") as schema_file:
+        with open(schema_path) as schema_file:
             preset_schema = json.load(schema_file)
     except FileNotFoundError:
         raise ValueError(f"Schema file not found: {schema_path}")

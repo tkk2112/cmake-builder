@@ -3,17 +3,17 @@
 import argparse
 import json
 import sys
-from typing import Any, Dict, List, cast
+from typing import Any, cast
 
 
-def parse_json(json_str: str) -> Dict[str, Any]:
+def parse_json(json_str: str) -> dict[str, Any]:
     try:
-        return cast(Dict[str, Any], json.loads(json_str))
+        return cast(dict[str, Any], json.loads(json_str))
     except json.JSONDecodeError as err:
         raise ValueError(f"JSON decode error: {err}")
 
 
-def construct_matrix(presets: Dict[str, Dict[str, Any]], default_runs_on: str, default_toolchain: str) -> Dict[str, List[Dict[str, Any]]]:
+def construct_matrix(presets: dict[str, dict[str, Any]], default_runs_on: str, default_toolchain: str) -> dict[str, list[dict[str, Any]]]:
     include_list = []
 
     for name, config in presets.items():
@@ -23,7 +23,7 @@ def construct_matrix(presets: Dict[str, Dict[str, Any]], default_runs_on: str, d
         entry = {"preset": name, "runs-on": runs_on, "toolchain": toolchain}
 
         if "artifact" in config:
-            entry["artifact"] = json.dumps(config["artifact"])
+            entry["artifact"] = config["artifact"]
 
         include_list.append(entry)
 
