@@ -9,7 +9,6 @@ requires-python = ">=3.11"
 classifiers = ["Private :: Do Not Upload"]
 
 [tool.uv.sources]
-pyproject-aliases = { git = "https://github.com/tkk2112/pyproject_aliases.git" }
 cmake-builder = { workspace = true }
 
 [dependency-groups]
@@ -19,12 +18,12 @@ dev = [
     "isort>=6.0.1",
     "mypy>=1.15.0",
     "pre-commit>=4.1.0",
-    "pyproject-aliases",
     "ruff>=0.10.0",
     "pytest-cov>=6.0.0",
     "pytest>=8.3.5",
     "pytest-random-order>=1.1.1",
     "pyfakefs>=5.8.0",
+    "pyproject-aliases>=0.2.0",
 ]
 
 [tool.ruff]

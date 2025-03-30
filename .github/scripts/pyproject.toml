@@ -6,13 +6,12 @@ requires-python = ">=3.11"
 dependencies = ["cmakepresets>=0.4.0", "jsonschema>=4.23.0", "requests>=2.32.3"]
 classifiers = ["Private :: Do Not Upload"]
 
-[tool.uv.sources]
-pyproject-aliases = { git = "https://github.com/tkk2112/pyproject_aliases.git" }
-
 [tool.aliases]
 validate = "uv run validate_presets.py --presets"
 construct = "uv run construct_matrix.py"
 generate = "uv run generate_steps.py"
 
 [dependency-groups]
-dev = ["pyproject-aliases"]
+dev = [
+    "pyproject-aliases>=0.2.0",
+]
