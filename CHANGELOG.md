@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/tkk2112/cmake-builder/compare/v0.1.3...0.2.0) (2025-04-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* update ref to script checkout and remove v prefix to tags
+
+### Bug Fixes
+
+* update ref to script checkout and remove v prefix to tags ([3e3e2a3](https://github.com/tkk2112/cmake-builder/commit/3e3e2a35f42502d08bbbec8506a57e5cc2fdc567))
+
 ## [0.1.3](https://github.com/tkk2112/cmake-builder/compare/v0.1.2...v0.1.3) (2025-04-02)
 
 
