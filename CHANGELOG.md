@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/tkk2112/cmake-builder/compare/v0.1.2...v0.1.3) (2025-04-02)
+
+
+### Bug Fixes
+
+* add version numbers to README.md and include it in release-please ([3717723](https://github.com/tkk2112/cmake-builder/commit/37177233d6433408ce17b47cde86117d81798e17))
+
 ## [0.1.2](https://github.com/tkk2112/cmake-builder/compare/v0.1.1...v0.1.2) (2025-04-02)
 
 
