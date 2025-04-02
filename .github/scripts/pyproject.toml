@@ -1,6 +1,6 @@
 [project]
 name = "cmake-builder"
-version = "0.1.1"
+version = "0.1.2"
 description = "scripts for the cmake-builder workflow"
 requires-python = ">=3.11"
 dependencies = ["cmakepresets>=0.4.0", "jsonschema>=4.23.0", "requests>=2.32.3"]
