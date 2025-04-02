@@ -8,6 +8,7 @@ runs:
     - uses: actions/checkout@v4
       with:
         repository: 'tkk2112/cmake-builder'
+        ref: 'v0.1.3'
         path: './.cmake-builder'
         sparse-checkout: |
           .github/scripts
