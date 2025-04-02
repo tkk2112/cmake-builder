@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0](https://github.com/tkk2112/cmake-builder/compare/0.1.3...0.2.0) (2025-04-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* set the correct initial version
+* update ref to script checkout and remove v prefix to tags
+
+### Bug Fixes
+
+* remove superfluous quotes from action ([fe34fba](https://github.com/tkk2112/cmake-builder/commit/fe34fba5425f2f8e4561ca9fdc07374f6b449670))
+* set the correct initial version ([090b580](https://github.com/tkk2112/cmake-builder/commit/090b580dc46eed84238950bd686beb169ea446aa))
+* update ref to script checkout and remove v prefix to tags ([3e3e2a3](https://github.com/tkk2112/cmake-builder/commit/3e3e2a35f42502d08bbbec8506a57e5cc2fdc567))
+
 ## [0.1.3](https://github.com/tkk2112/cmake-builder/compare/v0.1.2...v0.1.3) (2025-04-02)
 
 

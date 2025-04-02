@@ -1,5 +1,5 @@
 [//]: # (x-release-please-start-version)
-# CMake Builder 0.1.3
+# CMake Builder 0.2.0
 [//]: # (x-release-please-end)
 
 A reusable GitHub workflow for building CMake-based projects with using presets.
@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    uses: tkk2112/cmake-builder/.github/workflows/cmake-builder.yml@0.1.3
+    uses: tkk2112/cmake-builder/.github/workflows/cmake-builder.yml@0.2.0
     with:
       runs-on: ubuntu-latest
       toolchain: gcc
