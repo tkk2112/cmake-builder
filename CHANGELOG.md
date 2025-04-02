@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/tkk2112/cmake-builder/compare/v0.1.3...v0.2.0) (2025-04-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* update ref to script checkout and add v prefix to version
+
+### Bug Fixes
+
+* update ref to script checkout and add v prefix to version ([d925bee](https://github.com/tkk2112/cmake-builder/commit/d925bee98fbef0e92272b4025684aec3c22351fc))
+
 ## [0.1.3](https://github.com/tkk2112/cmake-builder/compare/v0.1.2...v0.1.3) (2025-04-02)
 
 
