@@ -1,5 +1,19 @@
 name: "Ubuntu latest gcc"
 
+inputs:
+  secret1:
+    description: "Generic secret slot 1"
+    required: false
+  secret2:
+    description: "Generic secret slot 2"
+    required: false
+  secret3:
+    description: "Generic secret slot 3"
+    required: false
+  secret4:
+    description: "Generic secret slot 4"
+    required: false
+
 runs:
   using: "composite"
   steps:
