@@ -1,4 +1,6 @@
-# CMake Builder
+[//]: # (x-release-please-start-version)
+# CMake Builder 0.1.2
+[//]: # (x-release-please-end)
 
 A reusable GitHub workflow for building CMake-based projects with using presets.
 
@@ -6,6 +8,7 @@ A reusable GitHub workflow for building CMake-based projects with using presets.
 
 To use this workflow in your project, add a workflow file like this:
 
+[//]: # (x-release-please-start-version)
 ```yaml
 name: Build
 
@@ -17,7 +20,7 @@ on:
 
 jobs:
   build:
-    uses: tkk2112/cmake-builder/.github/workflows/cmake-builder.yml@main
+    uses: tkk2112/cmake-builder/.github/workflows/cmake-builder.yml@0.1.2
     with:
       runs-on: ubuntu-latest
       toolchain: gcc
@@ -28,7 +31,7 @@ jobs:
           "macos": { "runs-on": "macos-latest" }
         }
 ```
-
+[//]: # (x-release-please-end)
 
 ### Inputs
 
