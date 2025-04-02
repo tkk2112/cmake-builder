@@ -9,7 +9,13 @@
       "bump-patch-for-minor-pre-major": true,
       "draft": false,
       "prerelease": false,
+      "include-v-in-tag": false,
       "extra-files": [
+        {
+          "type": "yaml",
+          "path": "actions/fetch-scripts/action.yml",
+          "jsonpath": "$.runs.steps[1].with.ref"
+        },
         {
           "type": "toml",
           "path": ".github/scripts/pyproject.toml",
