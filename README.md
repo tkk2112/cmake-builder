@@ -27,7 +27,6 @@ jobs:
           "release": {},
           "macos": { "runs-on": "macos-latest" }
         }
-    secrets: inherit
 ```
 
 
