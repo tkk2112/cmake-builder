@@ -1,6 +1,6 @@
 [project]
 name = "cmake-builder"
-version = "0.2.0"
+version = "0.2.1"
 readme = "README.md"
 authors = [{ name = "Thomas Kristensen", email = "thomas@sl.m04r.space" }]
 license = "MIT"

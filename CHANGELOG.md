@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/tkk2112/cmake-builder/compare/0.2.0...0.2.1) (2025-09-28)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([e0457f1](https://github.com/tkk2112/cmake-builder/commit/e0457f1013d65e92e71bf66c85ab9c353d80a307))
+
 ## [0.2.0](https://github.com/tkk2112/cmake-builder/compare/0.1.3...0.2.0) (2025-04-02)
 
 
