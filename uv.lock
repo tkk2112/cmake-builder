@@ -89,6 +89,7 @@ source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
+    { name = "certifi" },
     { name = "cmake-builder" },
     { name = "cmakepresets" },
     { name = "isort" },
@@ -106,6 +107,7 @@ dev = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "certifi", specifier = ">=2024.1.1" },
     { name = "cmake-builder", virtual = "." },
     { name = "cmakepresets", specifier = ">=0.4.0" },
     { name = "isort", specifier = ">=6.0.1" },

@@ -78,6 +78,7 @@ name = "cmake-builder"
 version = "0.2.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "certifi" },
     { name = "cmakepresets" },
     { name = "jsonschema" },
     { name = "requests" },
@@ -90,6 +91,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2024.1.1" },
     { name = "cmakepresets", specifier = ">=0.4.0" },
     { name = "jsonschema", specifier = ">=4.23.0" },
     { name = "requests", specifier = ">=2.32.3" },
