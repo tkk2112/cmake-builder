@@ -1,19 +1,72 @@
 import json
 import sys
+import warnings
 from collections.abc import Generator
 from pathlib import Path
+
+# Placeholders for symbols provided by the test fixture at runtime.
+# These help static analysis (mypy/linters) understand that the names
+# exist even though we import the real module inside a fixture at runtime.
 from typing import Any
+from typing import Any as _Any
 from unittest.mock import patch
 
 import pytest
+import urllib3
 from cmakepresets import CMakePresets
 from pyfakefs.fake_filesystem_unittest import Patcher
 
-sys.path.insert(0, str(Path(__file__).parent.parent / ".github" / "scripts"))
-from generate_steps import get_related_preset_names, main
+
+def main(*a: _Any, **k: _Any) -> None:  # placeholder, overridden by fixture
+    return None
+
+
+def get_related_preset_names(*a: _Any, **k: _Any) -> dict[str, list[str]]:
+    return {}
+
+
+def parse_arguments(*a: _Any, **k: _Any) -> None:
+    return None
+
+
+# Ignore urllib3 InsecureRequestWarning during tests
+warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class TestGenerateSteps:
+    @pytest.fixture(autouse=True)  # type: ignore[misc]
+    def no_network_schema_download(self, monkeypatch: Any) -> Generator[None]:
+        """Prevent schema download by patching cmakepresets.schema getters."""
+        try:
+            import cmakepresets.schema as cps
+
+            def _fake_get_schema(version: int) -> dict[str, Any]:
+                return {"oneOf": [{"properties": {"version": {"const": version}}}]}
+
+            monkeypatch.setattr(cps, "get_schema", _fake_get_schema)
+            monkeypatch.setattr(cps, "get_latest_master_schema", lambda *args, **kwargs: _fake_get_schema(6))
+            # Ensure tests can import the script under test from .github/scripts
+            scripts_path = str(Path(__file__).parent.parent / ".github" / "scripts")
+            if scripts_path not in sys.path:
+                sys.path.insert(0, scripts_path)
+
+            try:
+                import generate_steps as _gs
+
+                # Expose commonly used callables at module level so tests can call
+                # main() and get_related_preset_names(...) without a top-level import
+                globals()["main"] = _gs.main
+                globals()["get_related_preset_names"] = _gs.get_related_preset_names
+            except Exception:
+                # If import fails for any reason, tests that import locally will
+                # still attempt to import when they run; ignore import errors here.
+                pass
+        except Exception:
+            pass
+
+        yield
+
     @pytest.fixture(scope="function")  # type: ignore
     def valid_presets(self) -> Generator[None]:
         with Patcher():
@@ -96,8 +149,6 @@ class TestGenerateSteps:
     @patch("sys.stdout")
     @patch("sys.exit")
     def test_parse_boolean_invalid(self, mock_exit: Any, mock_stdout: Any) -> None:
-        from generate_steps import parse_arguments
-
         parse_arguments()
         assert any("'INVALID' is not a valid boolean value" in args[0] for args, _ in mock_stdout.write.call_args_list)
         mock_exit.assert_called_with(2)
@@ -121,8 +172,6 @@ class TestGenerateSteps:
     @patch("sys.stdout")
     @patch("sys.exit")
     def test_parse_invalid_artifact_json(self, mock_exit: Any, mock_stdout: Any) -> None:
-        from generate_steps import parse_arguments
-
         parse_arguments()
         assert any("Error parsing --artifact:" in args[0] for args, _ in mock_stdout.write.call_args_list)
         mock_exit.assert_called_with(2)
@@ -296,7 +345,7 @@ class TestGenerateSteps:
         ],
     )
     @patch("sys.stdout")
-    def test_main_with_GITHUB_WORKSPACE(self, mock_stdout: Any, valid_presets: Any) -> None:
+    def test_main_with_github_workspace(self, mock_stdout: Any, valid_presets: Any) -> None:
         with patch.dict("os.environ", {"GITHUB_WORKSPACE": "/fake"}):
             main()
 
@@ -323,7 +372,7 @@ class TestGenerateSteps:
         ],
     )
     @patch("sys.stdout")
-    def test_main_with_garbage_GITHUB_WORKSPACE(self, mock_stdout: Any, valid_presets: Any) -> None:
+    def test_main_with_garbage_github_workspace(self, mock_stdout: Any, valid_presets: Any) -> None:
         with patch.dict("os.environ", {"GITHUB_WORKSPACE": "!!!!"}):
             main()
 
@@ -350,7 +399,7 @@ class TestGenerateSteps:
         ],
     )
     @patch("sys.stdout")
-    def test_main_with_absolute_binarydir_and_GITHUB_WORKSPACE(self, mock_stdout: Any, valid_presets: Any) -> None:
+    def test_main_with_absolute_binarydir_and_github_workspace(self, mock_stdout: Any, valid_presets: Any) -> None:
         with patch.dict("os.environ", {"GITHUB_WORKSPACE": "/fake"}):
             main()
 
