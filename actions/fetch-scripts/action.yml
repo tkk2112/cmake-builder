@@ -11,4 +11,4 @@ runs:
         path: ./.cmake-builder
         sparse-checkout: |
           .github/scripts
-    - uses: astral-sh/setup-uv@22d500a65c34c827ebc95094040adcee254e92fa
+    - uses: astral-sh/setup-uv@9c12baee9699f1b4f4318d7175fab8635c2b8e45
